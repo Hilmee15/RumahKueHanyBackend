@@ -4,13 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Cake;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
 
 class CakeController extends Controller
 {
 
     public function __construct()
     {
-       $this->middleware(['permission:create-cake', 'auth:sanctum'])->only('store');
+        $this->middleware(['permission:create-cake', 'auth:sanctum'])->only('store');
     }
     /**
      * Display a listing of the resource.
@@ -34,8 +36,9 @@ class CakeController extends Controller
         $validator = validator($data, [
             'name' => 'required',
             'price' => 'required',
-            'image' => 'required|image|mimes:jpg,jpeg,png|max:1024',
+            'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'desc' => 'required',
+            'stock' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -55,10 +58,6 @@ class CakeController extends Controller
 
 
         $cake = Cake::create($data);
-
-        $responseData = [
-            ''
-        ];
         return response()->json([
             'status' => true,
             'message' => 'Create data Successfully',
@@ -92,6 +91,16 @@ class CakeController extends Controller
     public function update(Request $request, string $id)
     {
         $data = $request->all();
+        $validator = Validator::make($request->all(), [
+            'stock' => 'required'
+        ], [
+            'stock.required' => 'Stok wajib diperbarui!!'
+        ]);
+        if ($validator->passes()) {
+            Role::findById($id)->update($request->all());
+
+            return response()->json(['message' => 'Data berhasil diupdate!!']);
+        }
 
         $cake = Cake::find($id);
         if (!$cake) {

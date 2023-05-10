@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\RoleController;
 use App\Http\Controllers\CakeController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
@@ -31,3 +32,9 @@ Route::resource('/cakes', CakeController::class);
 Route::post('/register',[ AuthController::class, 'register']); //register
 Route::post('/login', [AuthController::class, 'login']); //login
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum'); //logout
+
+// Role Routing
+Route::get('/role', [RoleController::class, 'index']); // Read Role
+Route::post('/role', [RoleController::class, 'store']); // Create Role
+Route::post('/role/{id}', [RoleController::class, 'update']); // Update Role
+Route::delete('/role/{id}', [RoleController::class, 'destroy']); // Delete Role
