@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cake;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
@@ -12,7 +13,7 @@ class CakeController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['permission:create-cake', 'auth:sanctum'])->only('store');
+        $this->middleware(['role:admin', 'auth:sanctum'])->only('store');
     }
     /**
      * Display a listing of the resource.
@@ -27,6 +28,30 @@ class CakeController extends Controller
         ]);
     }
 
+    public function getCakeByCategoryId($id)
+    {
+        $category = Category::find($id);
+        if (!$category) {
+            return response()->json([
+                'status' => false,
+                'message' => 'category not found',
+                'data' => null
+            ], 404);
+        }
+
+        $products = $category->cakes->map(function ($cake) {
+            $cake->image = url('uploads') .'/' . $cake->image;
+            return $cake;
+        });
+        return response()->json(
+            [
+                'status' => true,
+                'message' => 'products',
+                'data' => $products
+            ]
+        );
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -38,7 +63,8 @@ class CakeController extends Controller
             'price' => 'required',
             'image' => 'required|image|mimes:jpg,jpeg,png|max:2048',
             'desc' => 'required',
-            'stock' => 'required'
+            'stock' => 'required',
+            'category_id' => 'required'
         ]);
 
         if ($validator->fails()) {
@@ -48,20 +74,22 @@ class CakeController extends Controller
                 'data' => null
             ], 400);
         }
-        if ($request->file('image')) {
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = date('YmdHi') . $file->getClientOriginalName();
-            $file->move(public_path('uploads'), $filename);
+            $filename = now() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/'), $filename);
             $data['image'] = $filename;
         }
+return dd($data);
 
 
 
-        $cake = Cake::create($data);
+
+        // $cake = Cake::create($data);
         return response()->json([
             'status' => true,
             'message' => 'Create data Successfully',
-            'data' => $cake
+            // 'data' => $cake
         ]);
     }
 
@@ -94,8 +122,8 @@ class CakeController extends Controller
         $validator = Validator::make($request->all(), [
             'stock' => 'required'
         ], [
-            'stock.required' => 'Stok wajib diperbarui!!'
-        ]);
+                'stock.required' => 'Stok wajib diperbarui!!'
+            ]);
         if ($validator->passes()) {
             Role::findById($id)->update($request->all());
 

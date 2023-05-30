@@ -18,11 +18,10 @@ class AuthController extends Controller
     {
 
         $validator = Validator::make($request->all(), [
-            'username' => 'required|unique:users,username',
+            'fullname' => 'required|unique:users,fullname',
             'email' => 'required|unique:users,email',
             'password' => 'required|string|min:8',
             'confirm_password' => 'required|same:password',
-            'role' => 'nullable|exists:roles,name'
         ]);
 
         if ($validator->fails()) {
@@ -31,7 +30,7 @@ class AuthController extends Controller
 
         $passwordHash = Hash::make($request->input('password'));
         $inputUser = [
-            'username' => $request->input('username'),
+            'fullname' => $request->input('fullname'),
             'email' => $request->input('email'),
             'password' => $passwordHash
         ];
@@ -45,18 +44,20 @@ class AuthController extends Controller
         }
         $response = [
             'id' => $user->id,
-            'username' => $user->username,
+            'fullname' => $user->fullname,
             'email' => $user->email,
             'role' => $user->getRoleNames()->first(),
             'token' => $token
         ];
         return CommonResponse::success('Register berhasil', $response);
     }
+
+
     public function login(Request $request)
     {
 
         $validator = Validator::make($request->all(), [
-            'username' => 'required',
+            'fullname' => 'required',
             'password' => 'required',
         ]);
 
@@ -65,14 +66,14 @@ class AuthController extends Controller
         }
 
 
-        $loginType = filter_var($request->input('username'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        $loginType = filter_var($request->input('fullname'), FILTER_VALIDATE_EMAIL) ? 'email' : 'fullname';
 
-        // ! Percabangan jika loginType nya email maka akan di cek emailnya, jika bukan maka akan dicek usernamenya
+        // ! Percabangan jika loginType nya email maka akan di cek emailnya, jika bukan maka akan dicek fullnamenya
         /**
          * $credentials = PENGENAL
          */
         $credentials = [
-            $loginType => $request->input('username'),
+            $loginType => $request->input('fullname'),
             'password' => $request->input('password')
         ];
 
@@ -81,17 +82,18 @@ class AuthController extends Controller
             // $user = auth()->user();
             $user = Auth::user();
             $token = $user->createToken('authToken')->plainTextToken;
-            $data = [
-                'token' => $token,
-                'user' => $user
+            $response = [
+                'id' => $user->id,
+                'fullname' => $user->fullname,
+                'email' => $user->email,
+                'role' => $user->getRoleNames()->first(),
+                'token' => $token
             ];
-            return CommonResponse::success('Login berhasil', $data);
+            return CommonResponse::success('Login berhasil', $response);
         } else {
             return CommonResponse::fail('Login gagal', 401);
         }
     }
-
-
 
     public function logout(Request $request)
     {

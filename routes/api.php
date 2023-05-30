@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\RoleController;
 use App\Http\Controllers\CakeController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -28,8 +29,12 @@ Route::resource('/categories', CategoryController::class);
 // Cake API Routing
 Route::resource('/cakes', CakeController::class);
 
+Route::get('/cakes-category/{id}', [CakeController::class, 'getCakeByCategoryId']);
+
+Route::resource('/cart', CartController::class);
+
 // Auth Routing
-Route::post('/register',[ AuthController::class, 'register']); //register
+Route::post('/register', [AuthController::class, 'register']); //register
 Route::post('/login', [AuthController::class, 'login']); //login
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum'); //logout
 

@@ -12,6 +12,6 @@ class Category extends Model
 
     public function cakes()
     {
-        return $this->hasMany(Cake::class);
+        return $this->hasMany(Cake::class, 'category_id');
     }
 }

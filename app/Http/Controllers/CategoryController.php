@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -12,11 +13,25 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $data = Category::all();
+        $data = Category::with([
+            'cakes'
+        ])->get()->toArray();
+
+        $categories = array_map(function ($category) {
+            $cakes = $category['cakes'];
+            if (count($cakes) > 0) {
+                $category['image'] = url('uploads') . '/' . $cakes[0]['image'];
+            } else {
+                $category['image'] = null;
+            }
+            unset($category['cakes']);
+            return $category;
+        }, $data);
+
         return response()->json([
             'status' => true,
             'message' => 'Success get all datas!!',
-            'data' => $data
+            'data' => $categories
         ]);
     }
 

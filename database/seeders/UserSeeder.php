@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $user1 = [
-            'username' => 'admin',
+            'fullname' => 'admin',
             'email' => 'admin21@gmail.com',
             'password' => Hash::make('admin')
         ];
@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
         $admin->assignRole('admin');
 
         $user2 = [
-            'username' => 'customer',
+            'fullname' => 'customer',
             'email' => 'customer21@gmail.com',
             'password' => Hash::make('customer')
         ];
